@@ -62,7 +62,7 @@ export class CitiesComponent implements OnInit {
 
     var sortOrder = (this.sort)
       ? this.sort.direction
-      : this.defaultSortColumn
+      : this.defaultSortOrder
 
     var filterColumn = (this.filterQuery)
       ? this.defaultFilterColumn
