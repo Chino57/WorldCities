@@ -90,7 +90,6 @@ namespace WorldCitiesAPI.Data
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize);
 
-
             var data = await source.ToListAsync();
 
             return new ApiResult<T>(
