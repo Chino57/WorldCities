@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, AsyncValidatorFn, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from './../../environments/environment';
 import { Country } from '../countries/country';
 import { City } from './city';
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { Observable, Subject } from 'rxjs'
+import { map, takeUntil } from 'rxjs/operators'
 import { BaseFormComponent } from '../base-form.component';
 import { CityService } from './city.service';
 
@@ -15,7 +15,7 @@ import { CityService } from './city.service';
   styleUrls: ['./city-edit.component.scss']
 })
 export class CityEditComponent
-  extends BaseFormComponent implements OnInit {
+  extends BaseFormComponent implements OnInit, OnDestroy {
 
   // the view title
   title?: string;
@@ -28,11 +28,13 @@ export class CityEditComponent
   // and not NULL when you're editing an existing one.
   id?: number;
 
-  // the countries array for the select
-  countries?: Country[];
+  // the countries observable for the select (using async pipe)
+  countries?: Observable<Country[]>
 
   // Activity Log (for debugging purposes)
   activityLog: string = '';
+
+  private destroySubject = new Subject();
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -56,6 +58,7 @@ export class CityEditComponent
 
     // react to form changes
     this.form.valueChanges
+      .pipe(takeUntil(this.destroySubject))
       .subscribe(() => {
         if (!this.form.dirty) {
           this.log("Form Model has been loaded.");
@@ -67,6 +70,7 @@ export class CityEditComponent
 
     // react to changes in the form.name control
     this.form.get("name")!.valueChanges
+      .pipe(takeUntil(this.destroySubject))
       .subscribe(() => {
         if (!this.form.dirty) {
           this.log("Name has been loaded with initial values.");
@@ -131,16 +135,15 @@ export class CityEditComponent
 
   loadCountries() {
     // fetch all the countries from the server
-    this.cityService.getCountries(
-      0,
-      9999,
-      "name",
-      "asc",
-      null,
-      null,
-    ).subscribe(result => {
-      this.countries = result.data;
-    }, error => console.error(error));
+    this.countries = this.cityService
+      .getCountries(
+        0,
+        9999,
+        "name",
+        "asc",
+        null,
+        null,
+      ).pipe(map(x => x.data));
   }
 
 
@@ -174,5 +177,12 @@ export class CityEditComponent
           }, error => console.error(error));
       }
     }
+  }
+
+  ngOnDestroy() {
+    // emit a value with the takeUntil notifier
+    this.destroySubject.next(true);
+    // complete the subject
+    this.destroySubject.complete();
   }
 }
