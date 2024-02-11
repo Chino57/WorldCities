@@ -31,6 +31,9 @@ export class CityEditComponent
   // the countries array for the select
   countries?: Country[];
 
+  // Activity Log (for debugging purposes)
+  activityLog: string = '';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -51,7 +54,35 @@ export class CityEditComponent
       countryId: new FormControl('', Validators.required)
     }, null, this.isDupeCity());
 
+    // react to form changes
+    this.form.valueChanges
+      .subscribe(() => {
+        if (!this.form.dirty) {
+          this.log("Form Model has been loaded.");
+        }
+        else {
+          this.log("Form was updated by the user.");
+        }
+      });
+
+    // react to changes in the form.name control
+    this.form.get("name")!.valueChanges
+      .subscribe(() => {
+        if (!this.form.dirty) {
+          this.log("Name has been loaded with initial values.");
+        }
+        else {
+          this.log("Name was updated by the user.")
+        }
+      });
+
     this.loadData();
+  }
+
+  log(str: string) {
+    this.activityLog += "["
+      + new Date().toLocaleString()
+      + "]" + str + "<br />"
   }
 
   isDupeCity(): AsyncValidatorFn {
