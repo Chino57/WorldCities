@@ -84,9 +84,9 @@ export class CityEditComponent
   }
 
   log(str: string) {
-    this.activityLog += "["
+    console.log("["
       + new Date().toLocaleString()
-      + "]" + str + "<br />"
+      + "]" + str);
   }
 
   isDupeCity(): AsyncValidatorFn {

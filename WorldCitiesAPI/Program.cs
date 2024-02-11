@@ -1,9 +1,27 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.MSSqlServer;
 using WorldCitiesAPI.Data;
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Adds Serilog support
+builder.Host.UseSerilog((ctx, lc) => lc
+    .ReadFrom.Configuration(ctx.Configuration)
+    .WriteTo.MSSqlServer(connectionString:
+                ctx.Configuration.GetConnectionString("DefaultConnection"),
+               restrictedToMinimumLevel: LogEventLevel.Information,
+               sinkOptions: new MSSqlServerSinkOptions
+               {
+                   TableName = "LogEvents",
+                   AutoCreateSqlDatabase = true
+               }
+               )
+    .WriteTo.Console()
+    );
 
 // Add services to the container.
 
@@ -29,6 +47,8 @@ options.UseSqlServer(
  );
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
