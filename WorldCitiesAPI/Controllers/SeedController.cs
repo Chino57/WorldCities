@@ -7,11 +7,13 @@ using WorldCitiesAPI.Data;
 using WorldCitiesAPI.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Runtime;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WorldCitiesAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize(Roles ="Administrator")]
     public class SeedController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
