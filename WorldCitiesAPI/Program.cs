@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -34,15 +35,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: myAllowSpecificOrigins,
-                        policy =>
-                        {
-                            policy.WithOrigins("https://localhost:4200")
-                            .AllowAnyHeader()
-                            .AllowAnyMethod();
-                        });
-});
+    options.AddPolicy(name: "AngularPolicy",
+        cfg =>
+        {
+            cfg.AllowAnyHeader();
+            cfg.AllowAnyMethod();
+            cfg.WithOrigins(builder.Configuration["AllowedCORS"]);
+        }));
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(
@@ -96,7 +95,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(myAllowSpecificOrigins);
+app.UseCors("AngularPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
