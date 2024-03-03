@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using WorldCitiesAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using WorldCitiesAPI.Data;
 using WorldCitiesAPI.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Runtime;
 using Microsoft.AspNetCore.Authorization;
+
 
 namespace WorldCitiesAPI.Controllers
 {
@@ -44,7 +44,7 @@ namespace WorldCitiesAPI.Controllers
             if (!_env.IsDevelopment())
                 throw new SecurityException("Not allowed");
 
-            var path = Path.Combine(
+            var path = System.IO.Path.Combine(
                 _env.ContentRootPath,
                 "Data/Source/worldcities.xlsx");
 

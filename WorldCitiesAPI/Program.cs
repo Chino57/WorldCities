@@ -8,6 +8,7 @@ using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 using WorldCitiesAPI.Data;
 using WorldCitiesAPI.Data.Models;
+using WorldCitiesAPI.Data.GraphQL;
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -82,6 +83,13 @@ builder.Services.AddAuthentication(opt =>
 
 builder.Services.AddScoped<JwtHandler>();
 
+builder.Services.AddGraphQLServer()
+    .AddAuthorization()
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>()
+    .AddFiltering()
+    .AddSorting();
+
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
@@ -101,6 +109,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGraphQL("/api/graphql");
 
 app.MapMethods("/api/heartbeat", new[] { "HEAD" }, () => Results.Ok());
 
